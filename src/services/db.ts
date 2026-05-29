@@ -239,7 +239,7 @@ export const loginUser = async (email: string, password?: string): Promise<UserA
     .from('profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
   return {
     id: data.user.id,
