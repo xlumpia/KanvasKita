@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================
+   THEME 1: DARK SLATE MODE (Default Theme)
+   ========================================== */
+:root {
+  /* Page & Layout Backgrounds */
+  --color-slate-50: #080c14;     /* App Background */
+  --color-slate-950: #04060a;    /* Header/Footer/Outer Background */
+  --color-white: #0c1220;        /* Card & Input Background (replacing white) */
+  
+  /* Borders & Dividers */
+  --color-slate-100: #121a2d;    /* Sub-borders / Hover Background */
+  --color-slate-200: #1c263e;    /* Primary borders */
+  --color-slate-800: #121a2d;
+  --color-slate-850: #0f1525;
+  --color-slate-700: #1c263e;
+  
+  /* Text Colors (Light colors for Dark Theme - NO OVERLAP WITH BACKGROUND VARIABLES) */
+  --color-slate-900: #f8fafc;    /* Headings (white) */
+  --color-slate-800: #f1f5f9;    /* Body text (crisp light gray) */
+  --color-slate-700: #cbd5e1;    /* Secondary text */
+  --color-slate-655: #cbd5e1;
+  --color-slate-650: #cbd5e1;
+  --color-slate-600: #94a3b8;    /* Muted text (slate-400) */
+  --color-slate-500: #64748b;    /* Disabled text */
+  --color-slate-400: #94a3b8;    /* Muted / Placeholder text */
+
+  /* Light Theme Accent Replacements (To fit Slate Dark Mode) */
+  --color-indigo-50: #141b30;
+  --color-indigo-100: #1e294a;
+  --color-indigo-600: #6366f1;    /* Vibrant Indigo */
+  --color-indigo-700: #818cf8;
+
+  --color-emerald-50: #0c201a;
+  --color-emerald-100: #103429;
+  --color-emerald-600: #10b981;  /* Emerald */
+
+  --color-amber-50: #24180d;
+  --color-amber-100: #3c2414;
+  --color-amber-600: #f59e0b;    /* Amber */
+
+  --color-violet-50: #181230;
+  --color-violet-100: #291e4b;
+  --color-violet-600: #8b5cf6;   /* Violet */
+
+  --color-cyan-50: #0e1e2b;
+  --color-cyan-100: #162f43;
+  --color-cyan-600: #06b6d4;     /* Cyan */
+
+  --color-blue-50: #0c1830;
+  --color-blue-100: #14284b;
+  --color-blue-600: #3b82f6;     /* Blue */
+
+  --color-rose-50: #240f14;
+  --color-rose-100: #3b141d;
+  --color-rose-600: #f43f5e;     /* Rose */
+}
+
+/* ==========================================
+   THEME 2: NEON GLOW MODE (Activated by .dark)
+   ========================================== */
+.dark {
+  /* Page & Layout Backgrounds */
+  --color-slate-50: #060211;     /* Deep Neon Purple-Black Page Background */
+  --color-slate-950: #030109;    /* Deepest Black-Purple Header/Footer Background */
+  --color-slate-900: #0d0426;    /* Dark purple card background (overrides text variable roles) */
+  --color-slate-100: #1a083f;    /* Hover background */
+  
+  /* Borders & Dividers */
+  --color-slate-800: #1a083f;    /* Card border */
+  --color-slate-700: #2b0e63;    /* Input border */
+  --color-slate-200: #2b0e63;    /* Other borders */
+  --color-slate-850: #13062f;
+
+  /* Text Colors (Mapped to white, slate-200, slate-300 to avoid conflicts with bg-slate-900) */
+  --color-white: #f5f3ff;        /* Headings (previously text-white, now lavender-white) */
+  --color-slate-800: #edd9ff;    /* Body text (very light lavender) */
+  --color-slate-700: #d8b4fe;    /* Secondary text */
+  --color-slate-655: #c084fc;
+  --color-slate-650: #c084fc;
+  --color-slate-600: #a78bfa;    /* Muted text (violet-400) */
+  --color-slate-500: #8b5cf6;    /* Disabled text */
+  --color-slate-400: #a78bfa;    /* Placeholder text */
+
+  /* Neon Accents (Vaporwave / Cyberpunk color palette) */
+  --color-indigo-50: #1c063c;
+  --color-indigo-100: #340c6b;
+  --color-indigo-600: #d946ef;    /* Neon Pink/Magenta */
+  --color-indigo-700: #f472b6;
+
+  --color-emerald-50: #042419;
+  --color-emerald-100: #0a3d2a;
+  --color-emerald-600: #34d399;  /* Neon Green */
+
+  --color-amber-50: #2d1604;
+  --color-amber-100: #492408;
+  --color-amber-600: #fbbf24;    /* Neon Amber/Gold */
+
+  --color-violet-50: #1e053a;
+  --color-violet-100: #340b63;
+  --color-violet-600: #a855f7;   /* Neon Purple */
+
+  --color-cyan-50: #052430;
+  --color-cyan-100: #0a3a4c;
+  --color-cyan-600: #22d3ee;     /* Neon Cyan */
+
+  --color-blue-50: #061a3c;
+  --color-blue-100: #0c2c63;
+  --color-blue-600: #60a5fa;     /* Neon Blue */
+
+  --color-rose-50: #2d0515;
+  --color-rose-100: #4a0c27;
+  --color-rose-600: #f43f5e;     /* Neon Rose */
+}
+
+/* ==========================================
+   GLOBAL CUSTOM CSS & NEON GLOW EFFECTS
+   ========================================== */
+
+/* Custom Selection style */
+::selection {
+  background-color: rgba(168, 85, 247, 0.4);
+  color: #ffffff;
+}
+
+/* Custom Scrollbar for Neon and Slate themes */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-slate-950);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate-200);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-indigo-600);
+}
+
+/* Neon Glow Transitions and Shadows */
+.dark .tool-card {
+  box-shadow: 0 4px 20px -2px rgba(139, 92, 246, 0.03);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .tool-card:hover {
+  box-shadow: 0 0 25px rgba(217, 70, 239, 0.15), 0 0 50px rgba(139, 92, 246, 0.05);
+  border-color: rgba(217, 70, 239, 0.4) !important;
+}
+
+/* Focus glow for textareas and inputs in Neon mode */
+.dark input:focus, .dark textarea:focus, .dark select:focus {
+  box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
+  border-color: var(--color-indigo-600) !important;
+}
+
+/* Slow heartbeat animation for badge */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
