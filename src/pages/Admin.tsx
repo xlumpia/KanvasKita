@@ -22,7 +22,6 @@ import {
   addCustomAsset, 
   deleteCustomAsset, 
   getToolsUsageStats,
-  getCurrentUser,
   loginUser,
   logoutUser,
   getProfilesCount
@@ -61,30 +60,31 @@ export const Admin = () => {
   const [storageUsage, setStorageUsage] = useState({ used: 0, percentage: 0 });
   const [toolsUsage, setToolsUsage] = useState<{ name: string; count: number }[]>([]);
 
-  // Listen for auth state changes (including initial session load from localStorage)
+  // Check active session on mount using getSession() (reads from localStorage, no network call)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        try {
-          const user = await getCurrentUser();
-          if (user && user.role === 'admin') {
-            setIsAuthenticated(true);
-          } else {
-            setIsAuthenticated(false);
-          }
-        } catch (err) {
-          console.error('Error checking admin role:', err);
-          setIsAuthenticated(false);
-        }
-      } else {
-        setIsAuthenticated(false);
-      }
-      setIsLoadingAuth(false);
-    });
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Query profiles table directly — avoid getUser() which makes a network
+          // request and can trigger token refresh / session destruction race conditions
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-    return () => {
-      subscription.unsubscribe();
+          if (profile?.role === 'admin') {
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
+      } finally {
+        setIsLoadingAuth(false);
+      }
     };
+    checkSession();
   }, []);
 
   // Calculate detailed stats
