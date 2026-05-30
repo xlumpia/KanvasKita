@@ -299,3 +299,16 @@ export const logoutUser = async (): Promise<void> => {
     console.error('Logout error:', error);
   }
 };
+
+export const getProfilesCount = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) {
+    console.error('Failed to get profiles count:', error);
+    return 0;
+  }
+  return count || 0;
+};
+

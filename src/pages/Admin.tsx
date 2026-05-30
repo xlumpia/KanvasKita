@@ -21,17 +21,20 @@ import {
   getCustomAssets, 
   addCustomAsset, 
   deleteCustomAsset, 
-  getToolsUsageStats 
+  getToolsUsageStats,
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  getProfilesCount
 } from '../services/db';
 import type { CustomAsset } from '../services/db';
 
 export const Admin = () => {
   
   // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('admin_session') === 'true';
-  });
-  const [username, setUsername] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
@@ -49,12 +52,32 @@ export const Admin = () => {
   const [newAssetFile, setNewAssetFile] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('Stiker Kustom');
 
-  // New Overview Stats State
+  // Real Database Overview Stats State
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalToolUsages, setTotalToolUsages] = useState(0);
   const [fontPopularity, setFontPopularity] = useState<{ font: string; count: number }[]>([]);
   const [elementBreakdown, setElementBreakdown] = useState({ text: 0, shape: 0, line: 0, image: 0 });
   const [storageUsage, setStorageUsage] = useState({ used: 0, percentage: 0 });
   const [toolsUsage, setToolsUsage] = useState<{ name: string; count: number }[]>([]);
-  const [visitors, setVisitors] = useState({ daily: 1420, active: 42 });
+
+  // Check active session on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user && user.role === 'admin') {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error('Error checking auth:', err);
+      } finally {
+        setIsLoadingAuth(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   // Calculate detailed stats
   useEffect(() => {
@@ -120,6 +143,12 @@ export const Admin = () => {
         setCustomAssets(assetsData);
 
         const usageObj = await getToolsUsageStats();
+        // Sum counts of all tools
+        const sumUsages = Object.values(usageObj).reduce((sum, val) => sum + val, 0);
+        setTotalToolUsages(sumUsages);
+
+        const usersCount = await getProfilesCount();
+        setTotalUsers(usersCount);
 
         const defaultToolsList = [
           'Kompres Gambar',
@@ -137,7 +166,7 @@ export const Admin = () => {
 
         const finalStats = defaultToolsList.map(name => ({
           name,
-          count: (usageObj[name] || 0) + (name === 'Kanvas Kreatif' ? 12 : name === 'Kompres Gambar' ? 8 : name === 'Alat PDF' ? 5 : 2)
+          count: usageObj[name] || 0
         })).sort((a, b) => b.count - a.count);
         setToolsUsage(finalStats);
       } catch (err) {
@@ -145,38 +174,44 @@ export const Admin = () => {
       }
     };
 
-    loadDashboardData();
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [isAuthenticated]);
 
-    // Mock daily & active visitors
-    const dailySeed = 1240 + Math.floor(Math.random() * 200);
-    const activeSeed = 32 + Math.floor(Math.random() * 12);
-    setVisitors({ daily: dailySeed, active: activeSeed });
-
-    const interval = setInterval(() => {
-      setVisitors(prev => ({
-        daily: prev.daily + (Math.random() > 0.8 ? 1 : 0),
-        active: Math.max(15, Math.min(80, prev.active + (Math.random() > 0.5 ? 1 : -1)))
-      }));
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'adminkanvas' && password === '721294149iS') {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_session', 'true');
-      setAuthError('');
-    } else {
-      setAuthError('ID Pengguna atau Kata Sandi salah!');
+    setAuthError('');
+    setIsLoadingAuth(true);
+    try {
+      const result = await loginUser(email, password);
+      if (typeof result === 'string') {
+        setAuthError(result);
+        setIsLoadingAuth(false);
+        return;
+      }
+      if (result.role === 'admin') {
+        setIsAuthenticated(true);
+      } else {
+        setAuthError('Akses ditolak: Akun Anda tidak memiliki hak akses Admin.');
+        await logoutUser();
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Gagal masuk.');
+    } finally {
+      setIsLoadingAuth(false);
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('admin_session');
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      setIsAuthenticated(false);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
+
 
   const handleDeleteTemplate = async (id: string) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus template ini?')) {
@@ -259,6 +294,17 @@ export const Admin = () => {
     }
   };
 
+  if (isLoadingAuth && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">Memverifikasi Sesi Admin...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
@@ -279,14 +325,15 @@ export const Admin = () => {
               </div>
             )}
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-355 mb-1.5">ID PENGGUNA</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-355 mb-1.5">EMAIL ADMIN</label>
               <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold"
-                placeholder="adminkanvas"
+                placeholder="admin@kanvaskita.com"
                 required
+                disabled={isLoadingAuth}
               />
             </div>
             <div>
@@ -298,13 +345,15 @@ export const Admin = () => {
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold"
                 placeholder="••••••••••••"
                 required
+                disabled={isLoadingAuth}
               />
             </div>
             <button 
               type="submit"
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all hover:scale-102 mt-4 cursor-pointer"
+              disabled={isLoadingAuth}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all hover:scale-102 mt-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Masuk Dashboard
+              {isLoadingAuth ? 'Memproses...' : 'Masuk Dashboard'}
             </button>
           </form>
         </div>
@@ -398,31 +447,24 @@ export const Admin = () => {
               </div>
             </div>
 
-            {/* Live Web Performance Analytics Row */}
+            {/* Real Web Performance Analytics Row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xs">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pengunjung Harian (Hari Ini)</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Pengguna Terdaftar</p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-3xl font-black text-slate-800 dark:text-white">{visitors.daily}</h3>
-                  <span className="text-emerald-500 text-[10px] font-bold font-mono">▲ +12.4%</span>
+                  <h3 className="text-3xl font-black text-slate-800 dark:text-white">{totalUsers}</h3>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Berdasarkan estimasi traffic server</p>
-              </div>
-              <div className="bg-white dark:bg-slate-900 border border-indigo-500/25 p-6 rounded-3xl shadow-md relative overflow-hidden flex flex-col justify-between">
-                <div className="absolute right-6 top-6 flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pengunjung Aktif (Real-time)</p>
-                  <h3 className="text-3xl font-black text-indigo-500">{visitors.active}</h3>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Sedang membuka salah satu alat online</p>
+                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Jumlah profil terdaftar di database</p>
               </div>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xs">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Kunjungan Halaman</p>
-                <h3 className="text-3xl font-black text-[#d946ef]">{visitors.daily * 3 + 42}</h3>
-                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Total tayangan halaman hari ini</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total Penggunaan Alat Online</p>
+                <h3 className="text-3xl font-black text-indigo-500">{totalToolUsages}</h3>
+                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Total eksekusi alat online yang dicatat</p>
+              </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xs">
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Rata-rata Penggunaan per Alat</p>
+                <h3 className="text-3xl font-black text-[#d946ef]">{(totalToolUsages / 11).toFixed(1)}</h3>
+                <p className="text-[10px] text-slate-400 mt-2 font-semibold">Rata-rata frekuensi penggunaan 11 alat</p>
               </div>
             </div>
 
