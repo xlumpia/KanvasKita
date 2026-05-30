@@ -79,7 +79,7 @@ export const Home = () => {
       bgColor: 'bg-indigo-50 dark:bg-indigo-900/30',
       tag: 'Populer',
       tagColor: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-      image: '/hapus background.png',
+      image: '/hapus background.webp',
       path: '/hapus-background'
     },
     {
@@ -91,7 +91,7 @@ export const Home = () => {
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/30',
       tag: 'Populer',
       tagColor: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-      image: '/image compress.png',
+      image: '/image compress.webp',
       path: '/kompres-gambar'
     },
     {
@@ -103,7 +103,7 @@ export const Home = () => {
       bgColor: 'bg-blue-50 dark:bg-blue-900/30',
       tag: '',
       tagColor: '',
-      image: '/convert image.png',
+      image: '/convert image.webp',
       path: '/konverter-format'
     },
     {
@@ -115,7 +115,7 @@ export const Home = () => {
       bgColor: 'bg-amber-50 dark:bg-amber-900/30',
       tag: 'Baru',
       tagColor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-      image: '/QR generator.png',
+      image: '/QR generator.webp',
       path: '/generator-qr'
     },
     {
@@ -127,7 +127,7 @@ export const Home = () => {
       bgColor: 'bg-cyan-50 dark:bg-cyan-900/30',
       tag: '',
       tagColor: '',
-      image: '/watermark.png',
+      image: '/watermark.webp',
       path: '/watermark'
     },
     {
@@ -139,7 +139,7 @@ export const Home = () => {
       bgColor: 'bg-violet-50 dark:bg-violet-900/30',
       tag: 'Baru',
       tagColor: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-      image: '/pdf tools.png',
+      image: '/pdf tools.webp',
       path: '/alat-pdf'
     }
   ];
@@ -155,7 +155,7 @@ export const Home = () => {
       bgColor: 'bg-rose-50 dark:bg-rose-900/30',
       tag: 'Praktis',
       tagColor: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-      image: '/color extractor.png',
+      image: '/color extractor.webp',
       path: '/ekstraktor-warna'
     },
     {
@@ -167,7 +167,7 @@ export const Home = () => {
       bgColor: 'bg-amber-50 dark:bg-amber-900/30',
       tag: 'Vektor',
       tagColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-      image: '/svg to png.png',
+      image: '/svg to png.webp',
       path: '/konverter-vektor'
     },
     {
@@ -179,7 +179,7 @@ export const Home = () => {
       bgColor: 'bg-violet-50 dark:bg-violet-900/30',
       tag: 'AI Pintar',
       tagColor: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-      image: '/ocr translator.png',
+      image: '/ocr translator.webp',
       path: '/ocr-terjemah'
     }
   ];
@@ -207,7 +207,7 @@ export const Home = () => {
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img
-            src="/Hero.png"
+            src="/Hero.webp"
             alt="Hero Background"
             className="w-full h-full object-cover object-center opacity-55 dark:opacity-35 select-none pointer-events-none transition-opacity duration-300"
           />

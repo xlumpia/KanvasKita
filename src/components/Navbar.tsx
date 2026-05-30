@@ -99,12 +99,12 @@ export const Navbar = ({ isDarkMode, setIsDarkMode }: NavbarProps) => {
             {/* Logo & Brand Name */}
             <div onClick={handleGoHome} className="flex items-center gap-2 cursor-pointer">
               <img 
-                src="/Logo.png" 
+                src="/Logo.webp" 
                 alt="Logo KanvasKita" 
                 className="w-8 h-8 object-contain" 
               />
               <img 
-                src="/KanvasKita.png" 
+                src="/KanvasKita.webp" 
                 alt="KanvasKita" 
                 className="h-12 md:h-14 object-contain" 
               />

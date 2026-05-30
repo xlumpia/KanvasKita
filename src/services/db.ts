@@ -36,12 +36,12 @@ export const getPublishedTemplates = async (): Promise<CustomTemplate[]> => {
     .from('templates')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
   if (error) {
     console.error('Failed to get templates:', error);
     return [];
   }
-  
+
   return (data || []).map(t => ({
     id: t.id,
     title: t.title,
@@ -70,7 +70,7 @@ export const publishTemplate = async (template: Omit<CustomTemplate, 'status'>):
       data: template.data,
       status: 'pending'
     });
-  
+
   if (error) {
     console.error('Failed to publish template:', error);
     throw new Error(error.message);
@@ -82,7 +82,7 @@ export const approvePublishedTemplate = async (id: string): Promise<void> => {
     .from('templates')
     .update({ status: 'approved' })
     .eq('id', id);
-  
+
   if (error) {
     console.error('Failed to approve template:', error);
     throw new Error(error.message);
@@ -94,7 +94,7 @@ export const deletePublishedTemplate = async (id: string): Promise<void> => {
     .from('templates')
     .delete()
     .eq('id', id);
-  
+
   if (error) {
     console.error('Failed to delete template:', error);
     throw new Error(error.message);
@@ -107,12 +107,12 @@ export const getCustomAssets = async (): Promise<CustomAsset[]> => {
     .from('custom_assets')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
   if (error) {
     console.error('Failed to get custom assets:', error);
     return [];
   }
-  
+
   return (data || []).map(a => ({
     id: a.id,
     name: a.name,
@@ -132,7 +132,7 @@ export const addCustomAsset = async (asset: Omit<CustomAsset, 'id'>): Promise<vo
       category: asset.category,
       creator_id: creatorId
     });
-  
+
   if (error) {
     console.error('Failed to add custom asset:', error);
     throw new Error(error.message);
@@ -144,7 +144,7 @@ export const deleteCustomAsset = async (id: string): Promise<void> => {
     .from('custom_assets')
     .delete()
     .eq('id', id);
-  
+
   if (error) {
     console.error('Failed to delete custom asset:', error);
     throw new Error(error.message);
@@ -156,12 +156,12 @@ export const getToolsUsageStats = async (): Promise<{ [key: string]: number }> =
   const { data, error } = await supabase
     .from('tools_usage_stats')
     .select('tool_name, count');
-  
+
   if (error) {
     console.error('Failed to get tools usage stats:', error);
     return {};
   }
-  
+
   const stats: { [key: string]: number } = {};
   (data || []).forEach(row => {
     stats[row.tool_name] = row.count;
@@ -205,13 +205,13 @@ export const registerUser = async (name: string, email: string, password?: strin
       }
     }
   });
-  
+
   if (error) {
     return error.message;
   }
-  
+
   if (!data.user) return 'Registrasi gagal!';
-  
+
   return {
     id: data.user.id,
     name,
@@ -227,11 +227,11 @@ export const loginUser = async (email: string, password?: string): Promise<UserA
     email,
     password
   });
-  
+
   if (error) {
     return error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah!' : error.message;
   }
-  
+
   if (!data.user) return 'Login gagal!';
 
   // Fetch the created profile from profiles table
@@ -259,7 +259,7 @@ export const loginWithOAuth = async (provider: 'google' | 'github'): Promise<voi
       redirectTo: `${window.location.origin}/auth`
     }
   });
-  
+
   if (error) {
     console.error('OAuth login error:', error.message);
     throw new Error(error.message);

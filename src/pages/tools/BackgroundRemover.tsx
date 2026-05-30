@@ -276,7 +276,7 @@ export const BackgroundRemover = () => {
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img
-            src="/hapus background.png"
+            src="/hapus background.webp"
             alt="Hero Background"
             className="w-full h-full object-cover object-center opacity-85 dark:opacity-40 select-none pointer-events-none transition-opacity duration-300"
           />
