@@ -27,6 +27,7 @@ import {
   logoutUser,
   getProfilesCount
 } from '../services/db';
+import { supabase } from '../services/supabaseClient';
 import type { CustomAsset } from '../services/db';
 
 export const Admin = () => {
@@ -60,23 +61,30 @@ export const Admin = () => {
   const [storageUsage, setStorageUsage] = useState({ used: 0, percentage: 0 });
   const [toolsUsage, setToolsUsage] = useState<{ name: string; count: number }[]>([]);
 
-  // Check active session on mount
+  // Listen for auth state changes (including initial session load from localStorage)
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (user && user.role === 'admin') {
-          setIsAuthenticated(true);
-        } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session) {
+        try {
+          const user = await getCurrentUser();
+          if (user && user.role === 'admin') {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } catch (err) {
+          console.error('Error checking admin role:', err);
           setIsAuthenticated(false);
         }
-      } catch (err) {
-        console.error('Error checking auth:', err);
-      } finally {
-        setIsLoadingAuth(false);
+      } else {
+        setIsAuthenticated(false);
       }
+      setIsLoadingAuth(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    checkAuth();
   }, []);
 
   // Calculate detailed stats
