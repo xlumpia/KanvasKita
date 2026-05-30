@@ -24,9 +24,8 @@ const App = () => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
       if (saved) return saved === 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    return false;
+    return false; // Default to Dark Slate Mode (isDarkMode = false)
   });
 
   useEffect(() => {
